@@ -19,7 +19,7 @@ export default function Login() {
         <div className="mb-8 text-center">
   <div className="w-32 h-16 mx-auto mb-4 flex items-center justify-center">
     <img
-      src="src\logo.png" 
+      src=".\src\logo.png"  
       alt="App Logo"
       className="max-h-16 object-contain"
     />
