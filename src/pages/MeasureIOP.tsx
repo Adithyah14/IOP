@@ -47,7 +47,7 @@ export default function MeasureIOP() {
     navigator.mediaDevices
       .getUserMedia({
         video: {
-          
+          facingMode: { exact: "environment" },
           width: { ideal: 640 },
           height: { ideal: 480 },
         },
