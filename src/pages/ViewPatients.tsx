@@ -28,7 +28,7 @@ const mockPatients: Patient[] = [
   },
   {
     id: "2",
-    name: "Sundar Ramaswamy",
+    name: "Sundar Ram",
     age: 67,
     patientId: "P002",
     lastVisited: "01-06-2025",
