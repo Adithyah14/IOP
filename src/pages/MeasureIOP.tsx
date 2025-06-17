@@ -74,9 +74,11 @@ export default function MeasureIOP() {
 }, [showCamera]);
 
   const patients = [
-    { id: "patient1", name: "patient 1", patientId: "P001", age: 39 },
-    { id: "patient2", name: "patient 2", patientId: "P002", age: 44 },
-    { id: "patient3", name: "patient 3", patientId: "P003", age: 36 },
+    { id: "P001", name: "Rajendra Kapoor", patientId: "P001", age: 65 },
+    { id: "P002", name: "Sundar Ramaswamy", patientId: "P002", age: 67 },
+    { id: "P003", name: "Vimala Deshmukh", patientId: "P003", age: 72 },
+    { id: "P004", name: "Mohanlal Joshi", patientId: "P004", age: 66 },
+    { id: "P005", name: "Suresh Sharma", patientId: "P005", age: 70 },
   ];
 
   const selectedPatientData = patients.find((p) => p.id === selectedPatient);
@@ -140,7 +142,7 @@ export default function MeasureIOP() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header title="Hello,&#10;Dr. XYZ" />
+      <Header title="Hello,&#10;Dr. Neeraj Kumar" />
       <DeviceStatus />
       <Navigation />
 
@@ -267,7 +269,7 @@ export default function MeasureIOP() {
                   autoPlay
                 />
               ) : (
-                <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="w-14 h-14 bg-white-200 rounded-lg flex items-center justify-center">
                   <svg
                     className="w-8 h-8 text-gray-400"
                     viewBox="0 0 57 57"
