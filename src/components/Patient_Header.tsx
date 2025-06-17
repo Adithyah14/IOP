@@ -115,7 +115,7 @@ export default function Header({ title, showBackButton, onBack }: HeaderProps) {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800">Patient 1</h3>
+                    <h3 className="font-semibold text-gray-800">Rajendra Kapoor</h3>
                   </div>
                 </div>
               </div>
