@@ -18,14 +18,14 @@ export default function Login() {
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-  <div className="w-32 h-16 mx-auto mb-4 flex items-center justify-center">
-    <img
-      src={logo}  
-      alt="App Logo"
-      className="max-h-16 object-contain"
-    />
-  </div>
-</div>
+          <div className="w-32 h-16 mx-auto mb-4 flex items-center justify-center">
+            <img
+              src={logo} 
+              alt="App Logo"
+              className="max-h-16 object-contain"
+            />
+          </div>
+        </div>
 
         {/* Login Form Container */}
         <div className="bg-iop-blue rounded-[20px] p-8 text-white">
@@ -33,9 +33,9 @@ export default function Login() {
           <div className="bg-white rounded-full p-1 mb-8 flex">
             <button
               onClick={() => setActiveTab("doctor")}
-              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-full text-sm font-bold transition-colors ${
+              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-full text-sm font-bold transition-colors duration-300 ease-in-out ${
                 activeTab === "doctor"
-                  ? "text-iop-blue bg-white"
+                  ? "text-iop-blue bg-white shadow-md"
                   : "text-black bg-transparent"
               }`}
             >
@@ -62,9 +62,9 @@ export default function Login() {
             </button>
             <button
               onClick={() => setActiveTab("patient")}
-              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-full text-sm font-bold transition-colors ${
+              className={`flex-1 flex items-center justify-center py-2 px-4 rounded-full text-sm font-bold transition-colors duration-300 ease-in-out ${
                 activeTab === "patient"
-                  ? "text-iop-blue bg-white"
+                  ? "text-iop-blue bg-white shadow-md"
                   : "text-black bg-transparent"
               }`}
             >
@@ -73,19 +73,14 @@ export default function Login() {
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
-                <path d="M12 12.25C11.2583 12.25 10.5333 12.0301 9.91661 11.618C9.29993 11.206 8.81928 10.6203 8.53545 9.93506C8.25162 9.24984 8.17736 8.49584 8.32205 7.76841C8.46675 7.04098 8.8239 6.3728 9.34835 5.84835C9.8728 5.3239 10.541 4.96675 11.2684 4.82206C11.9958 4.67736 12.7498 4.75162 13.4351 5.03545C14.1203 5.31928 14.706 5.79993 15.118 6.41661C15.5301 7.0333 15.75 7.75832 15.75 8.5C15.75 9.49456 15.3549 10.4484 14.6517 11.1517C13.9484 11.8549 12.9946 12.25 12 12.25ZM12 6.25C11.555 6.25 11.12 6.38196 10.75 6.62919C10.38 6.87643 10.0916 7.22783 9.92127 7.63896C9.75097 8.0501 9.70642 8.5025 9.79323 8.93895C9.88005 9.37541 10.0943 9.77632 10.409 10.091C10.7237 10.4057 11.1246 10.62 11.561 10.7068C11.9975 10.7936 12.4499 10.749 12.861 10.5787C13.2722 10.4084 13.6236 10.12 13.8708 9.75003C14.118 9.38002 14.25 8.94501 14.25 8.5C14.25 7.90326 14.0129 7.33097 13.591 6.90901C13.169 6.48705 12.5967 6.25 12 6.25ZM19 19.25C18.8019 19.2474 18.6126 19.1676 18.4725 19.0275C18.3324 18.8874 18.2526 18.6981 18.25 18.5C18.25 16.55 17.19 15.25 12 15.25C6.81 15.25 5.75 16.55 5.75 18.5C5.75 18.6989 5.67098 18.8897 5.53033 19.0303C5.38968 19.171 5.19891 19.25 5 19.25C4.80109 19.25 4.61032 19.171 4.46967 19.0303C4.32902 18.8897 4.25 18.6989 4.25 18.5C4.25 13.75 9.68 13.75 12 13.75C14.32 13.75 19.75 13.75 19.75 18.5C19.7474 18.6981 19.6676 18.8874 19.5275 19.0275C19.3874 19.1676 19.1981 19.2474 19 19.25Z" />
+                <path d="M12 12.25C11.2583 12.25 10.5333 12.0301 9.91661 11.618C9.29993 11.206 8.81928 10.6203 8.53545 9.93506C8.25162 9.24984 8.17736 8.49584 8.32205 7.76841C8.46675 7.04098 8.8239 6.3728 9.34835 5.84835C9.8728 5.3239 10.541 4.96675 11.2684 4.82206C11.9958 4.67736 12.7498 4.75162 13.4351 5.03545C14.1203 5.31928 14.706 5.79993 15.118 6.41661C15.5301 7.0333 15.75 7.75832 15.75 8.5C15.75 9.49456 15.3549 10.4484 14.6517 11.1517C13.9484 11.8549 12.9946 12.25 12 12.25ZM12 6.25C11.555 6.25 11.12 6.38196 10.75 6.62919C10.38 6.87643 10.0916 6.22783 9.92127 7.63896C9.75097 8.0501 9.70642 8.5025 9.79323 8.93895C9.88005 9.37541 10.0943 9.77632 10.409 10.091C10.7237 10.4057 11.1246 10.62 11.561 10.7068C11.9975 10.7936 12.4499 10.749 12.861 10.5787C13.2722 10.4084 13.6236 10.12 13.8708 9.75003C14.118 9.38002 14.25 8.94501 14.25 8.5C14.25 7.90326 14.0129 7.33097 13.591 6.90901C13.169 6.48705 12.5967 6.25 12 6.25ZM19 19.25C18.8019 19.2474 18.6126 19.1676 18.4725 19.0275C18.3324 18.8874 18.2526 18.6981 18.25 18.5C18.25 16.55 17.19 15.25 12 15.25C6.81 15.25 5.75 16.55 5.75 18.5C5.75 18.6989 5.67098 18.8897 5.53033 19.0303C5.38968 19.171 5.19891 19.25 5 19.25C4.80109 19.25 4.61032 19.171 4.46967 19.0303C4.32902 18.8897 4.25 18.6989 4.25 18.5C4.25 13.75 9.68 13.75 12 13.75C14.32 13.75 19.75 13.75 19.75 18.5C19.7474 18.6981 19.6676 18.8874 19.5275 19.0275C19.3874 19.1676 19.1981 19.2474 19 19.25Z" />
               </svg>
               Patient
             </button>
           </div>
-          {activeTab === "patient" && (
-            <div className="bg-iop-blue rounded-full h-1 w-20 mx-auto mb-8 relative">
-              <div className="absolute right-0 w-20 h-1 bg-iop-blue rounded-full"></div>
-            </div>
-          )}
 
           {/* Form Fields */}
-          <div className="space-y-4">
+          <div className="space-y-4 transition-opacity duration-300 ease-in-out">
             <div>
               <label className="block text-lg mb-2">
                 {activeTab === "doctor" ? "Username" : "Patient ID"}
