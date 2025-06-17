@@ -37,12 +37,12 @@ export default function PatientReport() {
   };
 
   const patientData = {
-    name: "Patient 1",
-    age: 39,
+    name: "Rajendra Kapoor",
+    age: 65,
     patientId: "P001",
     lastVisited: newMeasurement?.date || "01-06-2025",
     rightEye: safeParseIOP(newMeasurement?.rightEye, 15),
-    leftEye: safeParseIOP(newMeasurement?.leftEye, 16),
+    leftEye: safeParseIOP(newMeasurement?.leftEye, 17),
     status: "NORMAL",
   };
 
@@ -51,8 +51,8 @@ export default function PatientReport() {
     const rightValue = patientData.rightEye || 0;
     const leftValue = patientData.leftEye || 0;
     const maxValue = Math.max(rightValue, leftValue);
-    if (maxValue <= 15) return { status: "NORMAL", color: "bg-iop-green" };
-    if (maxValue <= 20) return { status: "BORDERLINE", color: "bg-iop-yellow" };
+    if (maxValue <= 20) return { status: "NORMAL", color: "bg-iop-green" };
+    if (maxValue <= 23) return { status: "BORDERLINE", color: "bg-iop-yellow" };
     return { status: "AT RISK", color: "bg-iop-red" };
   };
 
