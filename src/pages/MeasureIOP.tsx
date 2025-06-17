@@ -142,7 +142,7 @@ export default function MeasureIOP() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header title="Hello,&#10;Dr. Neeraj Kumar" />
+      <Header title="Hello,&#10;Dr.Neeraj Kumar" />
       <DeviceStatus />
       <Navigation />
 
