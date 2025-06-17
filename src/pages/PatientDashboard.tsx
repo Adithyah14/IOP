@@ -36,12 +36,12 @@ export default function PatientDashboard() {
   };
 
   const patientData = {
-    name: "Patient 1",
+    name: "Rajendra Kapoor",
     age: 39,
     patientId: "P001",
     lastVisited: newMeasurement?.date || "01-06-2025",
     rightEye: safeParseIOP(newMeasurement?.rightEye, 15),
-    leftEye: safeParseIOP(newMeasurement?.leftEye, 16),
+    leftEye: safeParseIOP(newMeasurement?.leftEye, 17),
     status: "NORMAL",
   };
 
@@ -50,8 +50,8 @@ export default function PatientDashboard() {
     const rightValue = patientData.rightEye || 0;
     const leftValue = patientData.leftEye || 0;
     const maxValue = Math.max(rightValue, leftValue);
-    if (maxValue <= 15) return { status: "NORMAL", color: "bg-iop-green" };
-    if (maxValue <= 20) return { status: "BORDERLINE", color: "bg-iop-yellow" };
+    if (maxValue <= 20) return { status: "NORMAL", color: "bg-iop-green" };
+    if (maxValue <= 22) return { status: "BORDERLINE", color: "bg-iop-yellow" };
     return { status: "AT RISK", color: "bg-iop-red" };
   };
 
@@ -65,7 +65,7 @@ export default function PatientDashboard() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Patient_Header title="Hello, Patient 1" />
+      <Patient_Header title="Hello, Rajendra Kapoor" />
       <div className="border border-white rounded-[10px] m-4 p-4">
         <div className="mb-6">
           <div className="mb-6">
@@ -162,9 +162,8 @@ export default function PatientDashboard() {
           </h3>
           <div className="border border-black rounded-lg p-3 h-28 bg-white">
             <textarea
-              value={doctorNotes}
+              value={doctorNotes || "No signs of ocular hypertension or glaucoma risk at this time.Follow-up in 12 months unless symptoms arise."}
               onChange={(e) => setDoctorNotes(e.target.value)}
-              placeholder="Add doctor's notes here..."
               className={`w-full h-full resize-none outline-none text-xs placeholder-gray-400 ${
                 newMeasurement?.notes ? "border-l-4 border-iop-blue pl-2" : ""
               }`}
