@@ -6,7 +6,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white">
       <Header
-        title="Hello,&#10;Dr. XYZ"
+        title="Hello,&#10;Dr.Neeraj Kumar"
       />
       <DeviceStatus />
       <Navigation />
