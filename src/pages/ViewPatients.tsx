@@ -18,52 +18,52 @@ interface Patient {
 const mockPatients: Patient[] = [
   {
     id: "1",
-    name: "Patient 1",
-    age: 39,
+    name: "Rajendra Kapoor",
+    age: 65,
     patientId: "P001",
     lastVisited: "01-06-2025",
     rightEye: 15,
-    leftEye: 16,
+    leftEye: 17,
     status: "NORMAL",
   },
   {
     id: "2",
-    name: "Patient 2",
-    age: 44,
-    patientId: "P001",
+    name: "Sundar Ramaswamy",
+    age: 67,
+    patientId: "P002",
     lastVisited: "01-06-2025",
-    rightEye: 20,
-    leftEye: 18,
-    status: "NORMAL",
-  },
-  {
-    id: "3",
-    name: "Patient 3",
-    age: 36,
-    patientId: "P001",
-    lastVisited: "01-06-2025",
-    rightEye: 23,
+    rightEye: 21,
     leftEye: 22,
     status: "BORDERLINE",
   },
   {
-    id: "4",
-    name: "Patient 4",
-    age: 55,
-    patientId: "P001",
+    id: "3",
+    name: "Vimala Deshmukh",
+    age: 72,
+    patientId: "P003",
     lastVisited: "01-06-2025",
-    rightEye: 25,
-    leftEye: 24,
-    status: "BORDERLINE",
+    rightEye: 26,
+    leftEye: 25,
+    status: "AT RISK",
+  },
+  {
+    id: "4",
+    name: "Mohanlal Joshi",
+    age: 66,
+    patientId: "P004",
+    lastVisited: "01-06-2025",
+    rightEye: 18,
+    leftEye: 19,
+    status: "NORMAL",
   },
   {
     id: "5",
-    name: "Patient 4",
-    age: 49,
-    patientId: "P001",
+    name: "Suresh Sharma",
+    age: 70,
+    patientId: "P005",
     lastVisited: "01-06-2025",
-    rightEye: 28,
-    leftEye: 27,
+    rightEye: 25,
+    leftEye: 23,
     status: "AT RISK",
   },
 ];
@@ -107,7 +107,7 @@ export default function ViewPatients() {
   return (
     <div className="min-h-screen bg-white">
       <Header
-        title="Hello,&#10;Dr. XYZ"
+        title="Hello,&#10;Dr.Neeraj Kumar"
       />
       <DeviceStatus />
       <Navigation />
