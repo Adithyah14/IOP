@@ -19,6 +19,7 @@ export default function MeasureIOP() {
     return saved ? JSON.parse(saved) : true;
   });
   const [showCamera, setShowCamera] = useState<boolean>(false);
+  const [isDeviceStraight, setIsDeviceStraight] = useState<boolean>(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -41,37 +42,46 @@ export default function MeasureIOP() {
     };
   }, []);
 
-  // Handle camera stream
+  // Handle camera stream and device orientation
   useEffect(() => {
-  if (showCamera && videoRef.current) {
-    navigator.mediaDevices
-      .getUserMedia({
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-        },
-      })
-      .then((stream) => {
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch((err) => console.error("Video play error:", err));
+    if (showCamera && videoRef.current) {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+          },
+        })
+        .then((stream) => {
+          streamRef.current = stream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch((err) => console.error("Video play error:", err));
+          }
+        })
+        .catch((err) => {
+          console.error("Error accessing camera:", err);
+          setShowCamera(false);
+          alert("Unable to access camera. Please ensure permissions are granted and use HTTPS.");
+        });
+
+      // Check device orientation
+      const handleOrientation = (event: DeviceOrientationEvent) => {
+        const tilt = Math.abs(event.beta || 0);
+        setIsDeviceStraight(tilt < 10); // Device is straight if tilt is within ±10 degrees
+      };
+
+      window.addEventListener("deviceorientation", handleOrientation);
+      return () => {
+        window.removeEventListener("deviceorientation", handleOrientation);
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+          streamRef.current = null;
         }
-      })
-      .catch((err) => {
-        console.error("Error accessing camera:", err);
-        setShowCamera(false);
-        alert("Unable to access camera. Please ensure permissions are granted and use HTTPS.");
-      });
-  }
-  return () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
+      };
     }
-  };
-}, [showCamera]);
+  }, [showCamera]);
 
   const patients = [
     { id: "P001", name: "Rajendra Kapoor", patientId: "P001", age: 65 },
@@ -96,7 +106,7 @@ export default function MeasureIOP() {
   };
 
   const handleMeasureLeft = async () => {
-    if (!connected) return;
+    if (!connected || !isDeviceStraight) return;
     setIsLoadingLeft(true);
     setShowCamera(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -109,7 +119,7 @@ export default function MeasureIOP() {
   };
 
   const handleMeasureRight = async () => {
-    if (!connected) return;
+    if (!connected || !isDeviceStraight) return;
     setIsLoadingRight(true);
     setShowCamera(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -142,7 +152,7 @@ export default function MeasureIOP() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header title="Hello,&#10;Dr.Neeraj Kumar" />
+      <Header title="Hello, Dr. Neeraj Kumar" />
       <DeviceStatus />
       <Navigation />
 
@@ -260,14 +270,21 @@ export default function MeasureIOP() {
             </div>
           </div>
 
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 relative">
             <div className="w-48 h-48 border-2 border-dashed border-gray-400 rounded-full flex items-center justify-center overflow-hidden">
               {showCamera ? (
-                <video
-                  ref={videoRef}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                />
+                <>
+                  <video
+                    ref={videoRef}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                  />
+                  {!isDeviceStraight && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-sm font-semibold">
+                      Please hold the device straight
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="w-14 h-14 bg-white-200 rounded-lg flex items-center justify-center">
                   <svg
@@ -289,12 +306,12 @@ export default function MeasureIOP() {
           <div className="flex gap-4 justify-center mb-6">
             <button
               onClick={handleMeasureLeft}
-              disabled={isLoadingLeft || isLoadingRight || !connected}
+              disabled={isLoadingLeft || isLoadingRight || !connected || !isDeviceStraight}
               className={`
                 bg-iop-blue text-white px-6 py-3 rounded font-semibold text-sm
                 flex flex-col items-center gap-1 min-w-[140px] justify-center
                 ${isLoadingLeft ? "animate-pulse bg-iop-blue-dark" : ""}
-                ${isLoadingLeft || isLoadingRight || !connected ? "opacity-30 cursor-not-allowed" : "hover:bg-iop-blue-dark hover:scale-105 active:scale-95"}
+                ${isLoadingLeft || isLoadingRight || !connected || !isDeviceStraight ? "opacity-30 cursor-not-allowed" : "hover:bg-iop-blue-dark hover:scale-105 active:scale-95"}
               `}
             >
               {isLoadingLeft ? (
@@ -311,12 +328,12 @@ export default function MeasureIOP() {
             </button>
             <button
               onClick={handleMeasureRight}
-              disabled={isLoadingLeft || isLoadingRight || !connected}
+              disabled={isLoadingLeft || isLoadingRight || !connected || !isDeviceStraight}
               className={`
                 bg-iop-blue text-white px-6 py-3 rounded font-semibold text-sm
                 flex flex-col items-center gap-1 min-w-[140px] justify-center
                 ${isLoadingRight ? "animate-pulse bg-iop-blue-dark" : ""}
-                ${isLoadingLeft || isLoadingRight || !connected ? "opacity-30 cursor-not-allowed" : "hover:bg-iop-blue-dark hover:scale-105 active:scale-95"}
+                ${isLoadingLeft || isLoadingRight || !connected || !isDeviceStraight ? "opacity-30 cursor-not-allowed" : "hover:bg-iop-blue-dark hover:scale-105 active:scale-95"}
               `}
             >
               {isLoadingRight ? (
