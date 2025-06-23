@@ -1,12 +1,29 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 import Header from "@/components/Header";
 import DeviceStatus from "@/components/DeviceStatus";
 import Navigation from "@/components/Navigation";
+import { Capacitor } from '@capacitor/core';
+import { CameraPreview, CameraPreviewOptions } from '@capacitor-community/camera-preview';
+
+
+
+interface Patient {
+  id: string;
+  patient_id: string;
+  name: string;
+  age: number;
+  gender: string;
+  phone: string;
+  email: string | null;
+}
 
 export default function MeasureIOP() {
   const navigate = useNavigate();
-  const [selectedPatient, setSelectedPatient] = useState<string>("patient1");
+  const location = useLocation();
+  const [baseIOP, setBaseIOP] = useState<number | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [rightEyeReading, setRightEyeReading] = useState<string>("NA");
   const [leftEyeReading, setLeftEyeReading] = useState<string>("NA");
   const [notes, setNotes] = useState<string>("");
@@ -19,8 +36,30 @@ export default function MeasureIOP() {
     return saved ? JSON.parse(saved) : true;
   });
   const [showCamera, setShowCamera] = useState<boolean>(false);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  // Fetch patients from Supabase and set selected patient from navigation state
+  useEffect(() => {
+    const fetchPatients = async () => {
+      const { data, error } = await supabase
+        .from("patients")
+        .select("*");
+      if (error) {
+        console.error("Error fetching patients:", error);
+        return;
+      }
+      setPatients(data || []);
+      const patientIdFromState = location.state?.patientId;
+      if (patientIdFromState && data?.some(p => p.id === patientIdFromState)) {
+        setSelectedPatient(patientIdFromState);
+      } else if (data && data.length > 0) {
+        setSelectedPatient(data[0].id);
+      }
+    };
+    fetchPatients();
+  }, [location.state]);
 
   // Sync with localStorage changes
   useEffect(() => {
@@ -37,61 +76,88 @@ export default function MeasureIOP() {
     window.addEventListener("deviceStatusChange", handleDeviceStatusChange as EventListener);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("deviceStatusChange", handleDeviceStatusChange as EventListener);
+      window.removeEventListener("deviceStatusChange", handleDeviceStatusChange);
     };
   }, []);
 
-  // Handle camera stream
   useEffect(() => {
-  if (showCamera && videoRef.current) {
-    navigator.mediaDevices
-      .getUserMedia({
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-        },
-      })
-      .then((stream) => {
+  const startCamera = async () => {
+    if (!showCamera) return;
+
+    if (Capacitor.getPlatform() === 'web') {
+        // Web browser camera preview
+        if (!videoRef.current) return;
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: "environment" },
+              width: { ideal: 192 },
+              height: { ideal: 192 },
+            },
+        });
         streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch((err) => console.error("Video play error:", err));
-        }
-      })
-      .catch((err) => {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      } catch (err) {
         console.error("Error accessing camera:", err);
-        setShowCamera(false);
         alert("Unable to access camera. Please ensure permissions are granted and use HTTPS.");
-      });
-  }
+        setShowCamera(false);
+      }
+    } else {
+      // ✅ Mobile (APK) using CameraPreview for live stream
+      try {
+        await CameraPreview.start({
+          parent: "cameraPreview", // Ensure this div exists
+          className: "cameraFeed",
+          position: "rear",
+          width: 192,
+          height: 192,
+          toBack: false,
+        });
+      } catch (err) {
+        console.error("Mobile camera preview error:", err);
+        alert("Unable to access camera on mobile.");
+        setShowCamera(false);
+      }
+    }
+  };
+
+  startCamera();
+
   return () => {
+    // ✅ Stop web stream
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
+
+    // ✅ Stop mobile preview
+    if (Capacitor.getPlatform() !== 'web') {
+      CameraPreview.stop().catch((err) =>
+        console.warn("Error stopping mobile camera preview:", err)
+      );
+    }
   };
 }, [showCamera]);
 
-  const patients = [
-    { id: "P001", name: "Rajendra Kapoor", patientId: "P001", age: 65 },
-    { id: "P002", name: "Sundar Ramaswamy", patientId: "P002", age: 67 },
-    { id: "P003", name: "Vimala Deshmukh", patientId: "P003", age: 72 },
-    { id: "P004", name: "Mohanlal Joshi", patientId: "P004", age: 66 },
-    { id: "P005", name: "Suresh Sharma", patientId: "P005", age: 70 },
-  ];
 
   const selectedPatientData = patients.find((p) => p.id === selectedPatient);
 
-  const generateIOPReading = () => {
-    return Math.floor(Math.random() * 16) + 10;
+  const generateIOPReading = (existingReading: number | null) => {
+    if (existingReading === null) {
+      return Math.floor(Math.random() * 36) + 10; // 10–45
+    } else {
+      const min = Math.max(10, existingReading - 4);
+      const max = Math.min(45, existingReading + 4);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
   };
 
   const getIOPRiskLevel = (reading: string) => {
     if (reading === "NA") return { level: "unknown", color: "text-gray-500" };
     const value = parseInt(reading);
-    if (value <= 15) return { level: "normal", color: "text-iop-green" };
-    if (value <= 20) return { level: "borderline", color: "text-iop-yellow" };
+    if (value <= 20) return { level: "normal", color: "text-iop-green" };
+    if (value <= 30) return { level: "borderline", color: "text-iop-yellow" };
     return { level: "at-risk", color: "text-iop-red" };
   };
 
@@ -100,8 +166,12 @@ export default function MeasureIOP() {
     setIsLoadingLeft(true);
     setShowCamera(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    const reading = generateIOPReading();
+
+    const reading = generateIOPReading(baseIOP);
     setLeftEyeReading(`${reading}`);
+
+    if (baseIOP === null) setBaseIOP(reading);
+
     setIsLoadingLeft(false);
     setLeftEyeAnimating(true);
     setShowCamera(false);
@@ -113,28 +183,40 @@ export default function MeasureIOP() {
     setIsLoadingRight(true);
     setShowCamera(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    const reading = generateIOPReading();
+
+    const reading = generateIOPReading(baseIOP);
     setRightEyeReading(`${reading}`);
+
+    if (baseIOP === null) setBaseIOP(reading);
+
     setIsLoadingRight(false);
     setRightEyeAnimating(true);
     setShowCamera(false);
     setTimeout(() => setRightEyeAnimating(false), 500);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!connected) return;
     const patient = patients.find((p) => p.id === selectedPatient);
     const measurementData = {
-      rightEye: rightEyeReading,
-      leftEye: leftEyeReading,
-      notes: notes,
-      date: new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }),
-      patientId: patient?.patientId || selectedPatient,
+      id: patient?.patient_id || selectedPatient,
+      last_visited: new Date().toISOString(),
+      right_eye: rightEyeReading !== "NA" ? parseInt(rightEyeReading) : null,
+      left_eye: leftEyeReading !== "NA" ? parseInt(leftEyeReading) : null,
+      notes: notes || null,
     };
+
+    const { error } = await supabase
+      .from("measurements")
+      .insert([measurementData]);
+
+    if (error) {
+      console.error("Error saving measurement:", error);
+      alert("Failed to save measurement. Please try again.");
+      return;
+    }
+
+    setBaseIOP(null); // Reset for next measurement session
     navigate(`/patient-report/${selectedPatient}`, {
       state: { newMeasurement: measurementData },
     });
@@ -208,11 +290,13 @@ export default function MeasureIOP() {
                     className="w-full border border-black rounded px-2 py-1 text-sm bg-white"
                     disabled={!connected}
                   >
-                    {patients.map((patient) => (
-                      <option key={patient.id} value={patient.id}>
-                        {patient.patientId}
-                      </option>
-                    ))}
+                    {patients
+  .sort((a, b) => a.patient_id.localeCompare(b.patient_id))
+  .map((patient) => (
+    <option key={patient.id} value={patient.id}>
+      {patient.patient_id}
+    </option>
+))}
                   </select>
                 </div>
               </div>
@@ -244,7 +328,7 @@ export default function MeasureIOP() {
                 >
                   {patients.map((patient) => (
                     <option key={patient.id} value={patient.id}>
-                      {patient.patientId}
+                      {patient.patient_id}
                     </option>
                   ))}
                 </select>
@@ -263,11 +347,18 @@ export default function MeasureIOP() {
           <div className="flex justify-center mb-6">
             <div className="w-48 h-48 border-2 border-dashed border-gray-400 rounded-full flex items-center justify-center overflow-hidden">
               {showCamera ? (
-                <video
-                  ref={videoRef}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                />
+                Capacitor.getPlatform() === 'web' ? (
+                  <video
+                    ref={videoRef}
+                    className="w-full h-full object-cover rounded-full"
+                    autoPlay
+                  />
+                ) : (
+                  <div 
+                    id="cameraPreview"
+                    className="w-14 h-14 bg-white-200 rounded-lg flex items-center justify-center"
+                  />
+                )
               ) : (
                 <div className="w-14 h-14 bg-white-200 rounded-lg flex items-center justify-center">
                   <svg
